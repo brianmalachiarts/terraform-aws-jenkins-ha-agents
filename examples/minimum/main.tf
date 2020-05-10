@@ -20,11 +20,10 @@ locals {
 
 module "jenkins_ha_agents" {
   source  = "neiman-marcus/jenkins-ha-agents/aws"
-  version = "2.2.3"
+  version = "2.6.0"
 
-  admin_password  = var.admin_password
-  bastion_sg_name = var.bastion_sg_name
-  domain_name     = var.domain_name
+  admin_password = var.admin_password
+  domain_name    = var.domain_name
 
   private_subnet_name = var.private_subnet_name
   public_subnet_name  = var.public_subnet_name

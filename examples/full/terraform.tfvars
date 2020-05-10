@@ -16,8 +16,6 @@ application = "jenkins"
 
 auto_update_plugins_cron = "0 0 31 2 *"
 
-bastion_sg_name = "bastion-sg"
-
 cidr_ingress = ["0.0.0.0/0"]
 
 contact = "admin@foo.io"

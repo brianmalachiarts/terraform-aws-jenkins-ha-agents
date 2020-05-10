@@ -2,7 +2,7 @@
 
 # terraform-aws-jenkins-ha-agents
 
-![version](https://img.shields.io/badge/version-v2.5.0-green.svg?style=flat) ![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)
+![version](https://img.shields.io/badge/version-v2.6.0-green.svg?style=flat) ![license](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat)
 
 A module for deploying Jenkins in a highly available and highly scalable manner.
 
@@ -34,11 +34,10 @@ To be used with a local map of tags.
 ```TERRAFORM
 module "jenkins_ha_agents" {
   source  = "neiman-marcus/jenkins-ha-agents/aws"
-  version = "2.5.0"
+  version = "2.6.0"
 
-  admin_password  = "foo"
-  bastion_sg_name = "bastion-sg"
-  domain_name     = "foo.io."
+  admin_password = "foo"
+  domain_name    = "foo.io."
 
   private_subnet_name = "private-subnet-*"
   public_subnet_name  = "public-subnet-*"
@@ -61,7 +60,7 @@ Note: It is better to use a template file, but the template data sources below i
 ```TERRAFORM
 module "jenkins_ha_agents" {
   source  = "neiman-marcus/jenkins-ha-agents/aws"
-  version = "2.5.0"
+  version = "2.6.0"
 
   admin_password    = "foo"
   agent_max         = 6
@@ -77,9 +76,8 @@ module "jenkins_ha_agents" {
   efs_mode                   = "provisioned"
   efs_provisioned_throughput = 3
 
-  application     = "jenkins"
-  bastion_sg_name = "bastion-sg"
-  domain_name     = "foo.io."
+  application = "jenkins"
+  domain_name = "foo.io."
 
   agent_lt_version  = "$Latest"
   master_lt_version = "$Latest"
@@ -172,7 +170,6 @@ EOF
 | api_ssm_parameter | The path value of the API key, stored in ssm parameter store. | string | `/api_key` | no |
 | application | The application name, to be interpolated into many resources and tags. Unique to this project. | string | `jenkins` | no |
 | auto_update_plugins_cron| Cron to set to auto update plugins. The default is set to February 31st, disabling this functionality. Overwrite this variable to have plugins auto update. | string | `0 0 31 2 *` | no |
-| bastion_sg_name | The bastion security group name to allow to ssh to the master/agents. | string | `N/A` | yes |
 | cidr_ingress | IP address cidr ranges allowed access to the LB. | string | `["0.0.0.0/0"]` | no |
 | custom_plugins | Custom plugins to install when bootstrapping. Created from a template outside of the module. | string | `empty` | no |
 | domain_name | The root domain name used to lookup the route53 zone information. | string | `N/A` | yes |
@@ -227,7 +224,12 @@ N/A
 
 ## Breaking Changes
 
-### v2.5.0 (upcoming)
+### v2.6.0
+
+* Security groups now move to use `aws_security_group_rule`. You will need to manually delete all ingress and egress rules from your security groups when upgrading. This provides greater security group flexability as you can easily add multiple `aws_security_group_rule` resources outside of the module.
+* Bastion support is deprecated within the module. Instead use the new security group outputs to add an `aws_security_group_rule` for bastion ingress rules.
+
+### v2.5.0
 
 * Giving custom names to ASG's has been removed. This should only impact external resources created outside of the module.
 * ASG's no longer rehydrate with launch template/configuration revisions. You will need to manaully rehydrate your ASG's with new instances.

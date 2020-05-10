@@ -47,10 +47,6 @@ variable "auto_update_plugins_cron" {
   default     = "0 0 31 2 *"
 }
 
-variable "bastion_sg_name" {
-  description = "The bastion security group name to allow to ssh to the master/agents."
-}
-
 variable "cidr_ingress" {
   description = "IP address cidr ranges allowed access to the LB."
   type        = list(string)

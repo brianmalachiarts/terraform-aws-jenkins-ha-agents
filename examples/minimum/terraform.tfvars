@@ -1,5 +1,3 @@
-bastion_sg_name = "bastion-sg"
-
 contact = "admin@foo.io"
 
 domain_name = "foo.io."

@@ -2,10 +2,6 @@ variable "admin_password" {
   description = "The master admin password. Used to bootstrap and login to the master. Also pushed to ssm parameter store for posterity."
 }
 
-variable "bastion_sg_name" {
-  description = "The bastion security group name to allow to ssh to the master/agents."
-}
-
 variable "contact" {
   description = "The email of the contact who owns or manages this infrastructure."
   default     = "admin@foo.io"

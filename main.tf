@@ -16,15 +16,6 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-data "aws_security_group" "bastion_sg" {
-  vpc_id = data.aws_vpc.vpc.id
-
-  filter {
-    name   = "group-name"
-    values = [var.bastion_sg_name]
-  }
-}
-
 data "aws_ami" "amzn2_ami" {
   most_recent = true
   owners      = [var.ami_owner]
@@ -85,29 +76,37 @@ resource "aws_security_group" "lb_sg" {
   name        = "${var.application}-lb-sg"
   description = "${var.application}-lb-sg"
   vpc_id      = data.aws_vpc.vpc.id
+  tags        = merge(var.tags, { Name = "${var.application}-lb-sg" })
+}
 
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = var.cidr_ingress
-  }
+resource "aws_security_group_rule" "lb_in_443" {
+  depends_on = [aws_security_group.lb_sg]
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "TCP"
+  cidr_blocks       = var.cidr_ingress
+  security_group_id = aws_security_group.lb_sg.id
+}
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = var.cidr_ingress
-  }
+resource "aws_security_group_rule" "lb_in_80" {
+  depends_on = [aws_security_group.lb_sg]
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "TCP"
+  cidr_blocks       = var.cidr_ingress
+  security_group_id = aws_security_group.lb_sg.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(var.tags, { Name = "${var.application}-lb-sg" })
+resource "aws_security_group_rule" "lb_egress" {
+  depends_on = [aws_security_group.lb_sg]
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.lb_sg.id
 }
 
 resource "aws_route53_record" "r53_record" {
@@ -280,23 +279,17 @@ resource "aws_security_group" "agent_sg" {
   name        = "${var.application}-agent-sg"
   description = "${var.application}-agent-sg"
   vpc_id      = data.aws_vpc.vpc.id
+  tags        = merge(var.tags, { Name = "${var.application}-agent-sg" })
+}
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [data.aws_security_group.bastion_sg.id]
-    self            = false
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(var.tags, { Name = "${var.application}-agent-sg" })
+resource "aws_security_group_rule" "agent_egress" {
+  depends_on = [aws_security_group.agent_sg]
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.agent_sg.id
 }
 
 resource "aws_iam_instance_profile" "agent_ip" {
@@ -562,39 +555,47 @@ resource "aws_security_group" "master_sg" {
   name        = "${var.application}-master-sg"
   description = "${var.application}-master-sg"
   vpc_id      = data.aws_vpc.vpc.id
+  tags        = merge(var.tags, { Name = "${var.application}-master-sg" })
+}
 
-  ingress {
-    from_port       = 8080
-    to_port         = 8080
-    protocol        = "tcp"
-    security_groups = [aws_security_group.lb_sg.id, aws_security_group.agent_sg.id]
-    self            = false
-  }
+resource "aws_security_group_rule" "master_in_lb_8080" {
+  depends_on = [aws_security_group.master_sg]
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "TCP"
+  source_security_group_id = aws_security_group.lb_sg.id
+  security_group_id        = aws_security_group.master_sg.id
+}
 
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [data.aws_security_group.bastion_sg.id]
-    self            = false
-  }
+resource "aws_security_group_rule" "master_in_agent_8080" {
+  depends_on = [aws_security_group.master_sg]
+  type                     = "ingress"
+  from_port                = 8080
+  to_port                  = 8080
+  protocol                 = "TCP"
+  source_security_group_id = aws_security_group.agent_sg.id
+  security_group_id        = aws_security_group.master_sg.id
+}
 
-  ingress {
-    from_port       = 49817
-    to_port         = 49817
-    protocol        = "tcp"
-    security_groups = [aws_security_group.agent_sg.id]
-    self            = false
-  }
+resource "aws_security_group_rule" "master_in_agent_49817" {
+  depends_on = [aws_security_group.master_sg]
+  type                     = "ingress"
+  from_port                = 49817
+  to_port                  = 49817
+  protocol                 = "TCP"
+  source_security_group_id = aws_security_group.agent_sg.id
+  security_group_id        = aws_security_group.master_sg.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(var.tags, { Name = "${var.application}-master-sg" })
+resource "aws_security_group_rule" "master_egress" {
+  depends_on = [aws_security_group.master_sg]
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.master_sg.id
 }
 
 resource "aws_iam_instance_profile" "master_ip" {
@@ -773,23 +774,27 @@ resource "aws_security_group" "master_storage_sg" {
   name        = "${var.application}-master-storage-sg"
   description = "${var.application}-master-storage-sg"
   vpc_id      = data.aws_vpc.vpc.id
+  tags        = merge(var.tags, { Name = "${var.application}-master-storage-sg" })
+}
 
-  ingress {
-    from_port       = 2049
-    to_port         = 2049
-    protocol        = "tcp"
-    security_groups = [aws_security_group.master_sg.id]
-    self            = false
-  }
+resource "aws_security_group_rule" "efs_in_master_2049" {
+  depends_on = [aws_security_group.master_storage_sg]
+  type                     = "ingress"
+  from_port                = 2049
+  to_port                  = 2049
+  protocol                 = "TCP"
+  source_security_group_id = aws_security_group.master_sg.id
+  security_group_id        = aws_security_group.master_storage_sg.id
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = merge(var.tags, { Name = "${var.application}-master-storage-sg" })
+resource "aws_security_group_rule" "efs_egress" {
+  depends_on = [aws_security_group.master_storage_sg]
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.master_storage_sg.id
 }
 
 resource "aws_lb_target_group" "master_tg" {

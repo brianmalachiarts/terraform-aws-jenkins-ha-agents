@@ -20,7 +20,7 @@ locals {
 
 module "jenkins_ha_agents" {
   source  = "neiman-marcus/jenkins-ha-agents/aws"
-  version = "2.5.0"
+  version = "2.6.0"
 
   admin_password    = var.admin_password
   agent_max         = var.agent_max
@@ -34,9 +34,8 @@ module "jenkins_ha_agents" {
   ami_owner         = var.ami_owner
   api_ssm_parameter = var.api_ssm_parameter
 
-  application     = var.application
-  bastion_sg_name = var.bastion_sg_name
-  domain_name     = var.domain_name
+  application = var.application
+  domain_name = var.domain_name
 
   match_master_asg_lc_names = var.match_master_asg_lc_names
 

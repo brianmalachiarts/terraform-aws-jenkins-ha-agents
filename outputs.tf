@@ -28,7 +28,7 @@ output "master_iam_role" {
   value       = aws_iam_role.master_iam_role.name
 }
 
-output "r53_record" {
-  description = "The fqdn of the route 53 record."
-  value       = aws_route53_record.r53_record.fqdn
-}
+# output "r53_record" {
+#   description = "The fqdn of the route 53 record."
+#   value       = aws_route53_record.r53_record.fqdn
+# }

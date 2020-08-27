@@ -62,9 +62,9 @@ data "aws_acm_certificate" "certificate" {
   statuses = ["ISSUED"]
 }
 
-data "aws_route53_zone" "r53_zone" {
-  name = var.domain_name
-}
+# data "aws_route53_zone" "r53_zone" {
+#   name = var.domain_name
+# }
 
 data "aws_iam_policy" "ssm_policy" {
   arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
@@ -110,17 +110,17 @@ resource "aws_security_group" "lb_sg" {
   tags = merge(var.tags, { "Name" = "${var.application}-lb-sg" })
 }
 
-resource "aws_route53_record" "r53_record" {
-  zone_id = data.aws_route53_zone.r53_zone.zone_id
-  name    = var.r53_record
-  type    = "A"
+# resource "aws_route53_record" "r53_record" {
+#   zone_id = data.aws_route53_zone.r53_zone.zone_id
+#   name    = var.r53_record
+#   type    = "A"
 
-  alias {
-    name                   = "dualstack.${aws_lb.lb.dns_name}"
-    zone_id                = aws_lb.lb.zone_id
-    evaluate_target_health = false
-  }
-}
+#   alias {
+#     name                   = "dualstack.${aws_lb.lb.dns_name}"
+#     zone_id                = aws_lb.lb.zone_id
+#     evaluate_target_health = false
+#   }
+# }
 
 resource "aws_cloudwatch_metric_alarm" "available_executors_low" {
   alarm_name          = "${var.application}-available-executors-low"

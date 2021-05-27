@@ -63,10 +63,10 @@ data "aws_subnet_ids" "public" {
   }
 }
 
-data "aws_acm_certificate" "certificate" {
-  domain   = var.ssl_certificate
-  statuses = ["ISSUED"]
-}
+# data "aws_acm_certificate" "certificate" {
+  # domain   = var.ssl_certificate
+  # statuses = ["ISSUED"]
+# }
 
 # data "aws_route53_zone" "r53_zone" {
 #   name = var.domain_name
@@ -822,10 +822,11 @@ resource "aws_lb_target_group" "master_tg" {
 
 resource "aws_lb_listener" "master_lb_listener" {
   load_balancer_arn = aws_lb.lb.arn
-  port              = 443
-  protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
-  certificate_arn   = data.aws_acm_certificate.certificate.arn
+  port              = 80
+  # protocol          = "HTTPS"
+  # Required if `protocol` is 'HTTPS'
+  # ssl_policy        = "ELBSecurityPolicy-TLS-1-2-2017-01"
+  # certificate_arn   = data.aws_acm_certificate.certificate.arn
 
   default_action {
     type             = "forward"

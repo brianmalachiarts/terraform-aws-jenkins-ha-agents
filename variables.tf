@@ -74,10 +74,10 @@ variable "custom_plugins" {
   default     = ""
 }
 
-variable "domain_name" {
-  description = "The root domain name used to lookup the route53 zone information."
-  type        = string
-}
+# variable "domain_name" {
+  # description = "The root domain name used to lookup the route53 zone information."
+  # type        = string
+# }
 
 variable "efs_mode" {
   description = "The EFS throughput mode. Options are bursting and provisioned. To set the provisioned throughput in mibps, configure efs_provisioned_throughput variable."
@@ -161,10 +161,10 @@ variable "public_subnet_name" {
   type        = string
 }
 
-variable "r53_record" {
-  description = "The FQDN for the route 53 record."
-  type        = string
-}
+# variable "r53_record" {
+  # description = "The FQDN for the route 53 record."
+  # type        = string
+# }
 
 variable "region" {
   description = "The AWS region to deploy the infrastructure too."
@@ -189,10 +189,10 @@ variable "scale_up_number" {
   default     = 1
 }
 
-variable "ssl_certificate" {
-  description = "The name of the SSL certificate to use on the load balancer."
-  type        = string
-}
+# variable "ssl_certificate" {
+  # description = "The name of the SSL certificate to use on the load balancer."
+  # type        = string
+# }
 
 variable "ssm_parameter" {
   description = "The full ssm parameter path that will house the api key and master admin password. Also used to grant IAM access to this resource."

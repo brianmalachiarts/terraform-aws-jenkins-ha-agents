@@ -1,9 +1,15 @@
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.13"
 
   required_providers {
-    aws      = "~> 2.25"
-    template = "~> 2.1"
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 2.25"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = ">= 2.1"
+    }
   }
 }
 
@@ -351,7 +357,7 @@ resource "aws_iam_role_policy" "agent_inline_policy" {
         "logs:DescribeLogStreams"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_cloudwatch_log_group.agent_logs.arn}"
+      "Resource": "${aws_cloudwatch_log_group.agent_logs.arn}:*"
     },
     {
       "Action": [
@@ -657,7 +663,7 @@ resource "aws_iam_role_policy" "master_inline_policy" {
         "logs:DescribeLogStreams"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_cloudwatch_log_group.master_logs.arn}"
+      "Resource": "${aws_cloudwatch_log_group.master_logs.arn}:*"
     },
     {
       "Action": [

@@ -3,11 +3,17 @@ provider "aws" {
 }
 
 terraform {
-  required_version = ">= 0.12"
+  required_version = ">= 0.13"
 
   required_providers {
-    aws      = "2.25.0"
-    template = "2.1.2"
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 2.25"
+    }
+    template = {
+      source  = "hashicorp/template"
+      version = ">= 2.1"
+    }
   }
 }
 
@@ -36,8 +42,6 @@ module "jenkins_ha_agents" {
   application     = var.application
   bastion_sg_name = var.bastion_sg_name
   domain_name     = var.domain_name
-
-  match_master_asg_lc_names = var.match_master_asg_lc_names
 
   key_name          = var.key_name
   scale_down_number = var.scale_down_number

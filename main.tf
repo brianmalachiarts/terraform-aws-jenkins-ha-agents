@@ -834,21 +834,22 @@ resource "aws_lb_listener" "master_lb_listener" {
   }
 }
 
-resource "aws_lb_listener" "master_http_listener" {
-  load_balancer_arn = aws_lb.lb.arn
-  port              = 80
-  protocol          = "HTTP"
+# Don't need the redirect for now. No HTTPS!
+# resource "aws_lb_listener" "master_http_listener" {
+  # load_balancer_arn = aws_lb.lb.arn
+  # port              = 80
+  # protocol          = "HTTP"
 
-  default_action {
-    type = "redirect"
+  # default_action {
+    # type = "redirect"
 
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
+    # redirect {
+      # port        = "443"
+      # protocol    = "HTTPS"
+      # status_code = "HTTP_301"
+    # }
+  # }
+# }
 
 resource "aws_ssm_parameter" "admin_password" {
   name        = "${var.ssm_parameter}${var.password_ssm_parameter}"
